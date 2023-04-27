@@ -1,7 +1,7 @@
 import 'package:animew_app/theme/pallete.dart';
 import 'package:flutter/material.dart';
 
-class CustomTheme {
+abstract class CustomTheme {
   static ThemeData darkTheme(BuildContext context) {
     final theme = Theme.of(context);
     return ThemeData(

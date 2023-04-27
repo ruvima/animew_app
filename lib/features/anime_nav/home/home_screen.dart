@@ -1,43 +1,39 @@
 import 'package:animew_app/core/constants.dart';
 import 'package:animew_app/core/widgets/primary_button.dart';
-import 'package:animew_app/features/anime_nav/anime_nav.dart';
+import 'package:animew_app/features/anime_nav/anime_nav_controller.dart';
 import 'package:animew_app/features/anime_nav/details/details_screen.dart';
 import 'package:animew_app/theme/pallete.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const Icon(Icons.menu),
-        title: const Text('AnimeW'),
+    return SingleChildScrollView(
+      child: Column(
+        children: const [
+          _TopRatingAnime(),
+          SizedBox(height: SpacingHelper.kMediumSpacing),
+          _NewReleasedAnime(),
+          SizedBox(height: SpacingHelper.kListItemSpacing),
+        ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: const [
-            _TopRatingAnime(),
-            SizedBox(height: SpacingHelper.kMediumSpacing),
-            _NewReleasedAnime(),
-            SizedBox(height: SpacingHelper.kListItemSpacing),
-          ],
-        ),
-      ),
-      bottomNavigationBar: const AnimeNav(),
     );
   }
 }
 
-class _TopRatingAnime extends StatelessWidget {
+class _TopRatingAnime extends ConsumerWidget {
   const _TopRatingAnime({
     Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final animeState = ref.watch(animeNavControllerProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -62,7 +58,7 @@ class _TopRatingAnime extends StatelessWidget {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    const _PosterImage(),
+                    _PosterImage(animeState.anime.imageUrl),
                     Positioned(
                       left: 0,
                       right: 0,
@@ -76,20 +72,20 @@ class _TopRatingAnime extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Oshi no Ko ',
+                                Text(
+                                  animeState.anime.title,
                                   maxLines: 2,
                                   textAlign: TextAlign.start,
                                   overflow: TextOverflow.fade,
                                 ),
                                 const SizedBox(height: 2),
                                 Row(
-                                  children: const [
-                                    Icon(
+                                  children: [
+                                    const Icon(
                                       Icons.star,
                                       color: Colors.orange,
                                     ),
-                                    Text('8.29'),
+                                    Text('${animeState.anime.score}'),
                                   ],
                                 ),
                               ],
@@ -100,7 +96,9 @@ class _TopRatingAnime extends StatelessWidget {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const DetailsScreen(),
+                                    builder: (context) => DetailsScreen(
+                                      anime: animeState.anime,
+                                    ),
                                   ));
                             },
                             text: 'Watch now',
@@ -115,7 +113,7 @@ class _TopRatingAnime extends StatelessWidget {
             separatorBuilder: (_, __) => const SizedBox(
               width: SpacingHelper.kListItemSpacing,
             ),
-            itemCount: 8,
+            itemCount: animeState.topAnime.length,
           ),
         ),
       ],
@@ -124,9 +122,11 @@ class _TopRatingAnime extends StatelessWidget {
 }
 
 class _PosterImage extends StatelessWidget {
-  const _PosterImage({
+  const _PosterImage(
+    this.imageUrl, {
     Key? key,
   }) : super(key: key);
+  final String imageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -150,7 +150,7 @@ class _PosterImage extends StatelessWidget {
       },
       blendMode: BlendMode.dstIn,
       child: Image.network(
-        'https://cdn.myanimelist.net/images/anime/1812/134736.jpg',
+        imageUrl,
         fit: BoxFit.cover,
       ),
     );

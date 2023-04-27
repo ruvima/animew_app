@@ -1,8 +1,9 @@
-import 'package:animew_app/features/anime_nav/home/home_screen.dart';
+import 'package:animew_app/features/anime_nav/anime_nav.dart';
 import 'package:animew_app/theme/custom_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-void main() => runApp(const MyApp());
+void main() => runApp(const ProviderScope(child: MyApp()));
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'AnimeW',
       darkTheme: CustomTheme.darkTheme(context),
       themeMode: ThemeMode.dark,
-      home: const HomeScreen(),
+      home: const AnimeNav(),
     );
   }
 }

@@ -1,10 +1,14 @@
 import 'package:animew_app/core/constants.dart';
 import 'package:animew_app/core/widgets/custom_divider.dart';
+import 'package:animew_app/features/anime_nav/anime_nav_controller.dart';
+import 'package:animew_app/features/anime_nav/details/anime.dart';
 import 'package:animew_app/theme/pallete.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DetailsScreen extends StatelessWidget {
-  const DetailsScreen({Key? key}) : super(key: key);
+  const DetailsScreen({Key? key, required this.anime}) : super(key: key);
+  final Anime anime;
   final double animeHeight = 150;
   @override
   Widget build(BuildContext context) {
@@ -15,7 +19,9 @@ class DetailsScreen extends StatelessWidget {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                const _CoverImage(),
+                _CoverImage(
+                  imageUrl: anime.imageUrl,
+                ),
                 Positioned(
                   top: 50,
                   child: BackButton(
@@ -26,13 +32,50 @@ class DetailsScreen extends StatelessWidget {
                   width: MediaQuery.of(context).size.width,
                   bottom: -(animeHeight / 2.5),
                   child: _AnimeImageDetails(
+                    anime: anime,
                     animeHeight: animeHeight,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: animeHeight / 2),
-            const _OverviewTabs(),
+            Padding(
+              padding: const EdgeInsets.only(left: 130, right: 15),
+              child: Consumer(
+                builder: (context, ref, child) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _AnimeImageDetailsIcon(
+                        icon: Icons.remove_red_eye,
+                        text: '${anime.scoredBy}',
+                        onTap: () {},
+                      ),
+                      _AnimeImageDetailsIcon(
+                        icon: Icons.thumb_up,
+                        text: '${anime.favorites}',
+                        onTap: () {},
+                      ),
+                      _AnimeImageDetailsIcon(
+                        icon: Icons.share,
+                        text: 'Share',
+                        onTap: () {},
+                      ),
+                      _AnimeImageDetailsIcon(
+                        icon: Icons.bookmarks,
+                        text: 'Bookmark',
+                        onTap: () {
+                          ref
+                              .read(animeNavControllerProvider.notifier)
+                              .toggleBookMark(anime);
+                        },
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            // SizedBox(height: animeHeight / 2),
+            _Overview(anime: anime)
           ],
         ),
       ),
@@ -40,69 +83,12 @@ class DetailsScreen extends StatelessWidget {
   }
 }
 
-class _OverviewTabs extends StatefulWidget {
-  const _OverviewTabs({
+class _Overview extends StatelessWidget {
+  const _Overview({
     Key? key,
+    required this.anime,
   }) : super(key: key);
-
-  @override
-  State<_OverviewTabs> createState() => _OverviewTabsState();
-}
-
-class _OverviewTabsState extends State<_OverviewTabs>
-    with TickerProviderStateMixin {
-  @override
-  Widget build(BuildContext context) {
-    TabController tabController = TabController(length: 2, vsync: this);
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        TabBar(
-          padding: const EdgeInsets.symmetric(horizontal: 18),
-          indicator: const BoxDecoration(
-              color: Pallete.blue800,
-              border: Border(
-                bottom: BorderSide(
-                  width: 3.0,
-                  color: Pallete.grey,
-                ),
-              )),
-          controller: tabController,
-          tabs: const [
-            Tab(
-              text: 'Info',
-            ),
-            Tab(
-              text: 'Watch',
-            ),
-          ],
-        ),
-        SizedBox(
-          height: 600,
-          child: TabBarView(
-            controller: tabController,
-            children: [
-              const _OverviewTabWidget(),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 18),
-                color: Pallete.blue900,
-                child: const Center(
-                  child: Text('not implemented'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _OverviewTabWidget extends StatelessWidget {
-  const _OverviewTabWidget({
-    Key? key,
-  }) : super(key: key);
+  final Anime anime;
 
   @override
   Widget build(BuildContext context) {
@@ -111,147 +97,71 @@ class _OverviewTabWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 18,
-        vertical: 10,
       ),
       margin: const EdgeInsets.symmetric(horizontal: 18),
       color: Pallete.blue900,
-      child: ListView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: SpacingHelper.kListItemSpacing),
+          Text(
+            'Synopsis',
+            style: theme.textTheme.headline6,
+          ),
+          const CustomDivider(),
+          Text(
+            anime.synopsis,
+            style: theme.textTheme.bodyText2,
+          ),
+          const SizedBox(height: SpacingHelper.kListItemSpacing),
+          Text(
+            'Information',
+            style: theme.textTheme.headline6,
+          ),
+          const CustomDivider(),
           Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Synopsis',
-                style: theme.textTheme.headline6,
+              _InformatioWidget(
+                title: 'Name: ',
+                content: anime.title,
               ),
-              const CustomDivider(),
-              Text(
-                'The young priestess goes with her team to adventure, but the road of adventure immediately leads them to trouble. Everything seems to be lost, but adventurers are saved by the Goblin Killer.',
-                style: theme.textTheme.bodyText2,
+              _InformatioWidget(
+                title: 'Score: ',
+                content: '${anime.score}',
               ),
-              const SizedBox(height: SpacingHelper.kListItemSpacing),
-              Text(
-                'Information',
-                style: theme.textTheme.headline6,
+              _InformatioWidget(
+                title: 'Type: ',
+                content: anime.type,
               ),
-              const CustomDivider(),
-              Column(
-                children: const [
-                  _InformatioWidget(
-                    title: 'Name: ',
-                    content: 'Goblin Slayer',
-                  ),
-                  _InformatioWidget(
-                    title: 'Scre: ',
-                    content: '8.2',
-                  ),
-                  _InformatioWidget(
-                    title: 'Type: ',
-                    content: 'TV',
-                  ),
-                  _InformatioWidget(
-                    title: 'Episodes: ',
-                    content: '24',
-                  ),
-                  _InformatioWidget(
-                    title: 'Status: ',
-                    content: 'Finished Airing',
-                  ),
-                  _InformatioWidget(
-                    title: 'Aired: ',
-                    content: 'Jul5, 2019 to Dec 13,2019',
-                  ),
-                  _InformatioWidget(
-                    title: 'Licensors: ',
-                    content: 'TSM Entrertainment',
-                  ),
-                  _InformatioWidget(
-                    title: 'Source: ',
-                    content: 'Manga',
-                  ),
-                ],
+              _InformatioWidget(
+                title: 'Episodes: ',
+                content: '${anime.episodes}',
               ),
-              const SizedBox(height: SpacingHelper.kListItemSpacing),
-              Text(
-                'Characters & Voice Actors',
-                style: theme.textTheme.headline6,
+              _InformatioWidget(
+                title: 'Status: ',
+                content: anime.status,
               ),
-              const CustomDivider(),
-              Column(
-                children: const [
-                  _InformatioWidget(
-                    title: 'Name: ',
-                    content: 'Goblin Slayer',
-                  ),
-                  _InformatioWidget(
-                    title: 'Scre: ',
-                    content: '8.2',
-                  ),
-                  _InformatioWidget(
-                    title: 'Type: ',
-                    content: 'TV',
-                  ),
-                  _InformatioWidget(
-                    title: 'Episodes: ',
-                    content: '24',
-                  ),
-                  _InformatioWidget(
-                    title: 'Status: ',
-                    content: 'Finished Airing',
-                  ),
-                  _InformatioWidget(
-                    title: 'Aired: ',
-                    content: 'Jul5, 2019 to Dec 13,2019',
-                  ),
-                  _InformatioWidget(
-                    title: 'Licensors: ',
-                    content: 'TSM Entrertainment',
-                  ),
-                  _InformatioWidget(
-                    title: 'Source: ',
-                    content: 'Manga',
-                  ),
-                ],
+              _InformatioWidget(
+                title: 'Aired: ',
+                content: anime.aired,
               ),
-              Column(
-                children: const [
-                  _InformatioWidget(
-                    title: 'Name: ',
-                    content: 'Goblin Slayer',
-                  ),
-                  _InformatioWidget(
-                    title: 'Scre: ',
-                    content: '8.2',
-                  ),
-                  _InformatioWidget(
-                    title: 'Type: ',
-                    content: 'TV',
-                  ),
-                  _InformatioWidget(
-                    title: 'Episodes: ',
-                    content: '24',
-                  ),
-                  _InformatioWidget(
-                    title: 'Status: ',
-                    content: 'Finished Airing',
-                  ),
-                  _InformatioWidget(
-                    title: 'Aired: ',
-                    content: 'Jul5, 2019 to Dec 13,2019',
-                  ),
-                  _InformatioWidget(
-                    title: 'Licensors: ',
-                    content: 'TSM Entrertainment',
-                  ),
-                  _InformatioWidget(
-                    title: 'Source: ',
-                    content: 'Manga',
-                  ),
-                ],
+              _InformatioWidget(
+                title: 'Licensors: ',
+                content: anime.licensors.toString(),
+              ),
+              _InformatioWidget(
+                title: 'Source: ',
+                content: anime.source,
               ),
             ],
           ),
+          const SizedBox(height: SpacingHelper.kListItemSpacing),
+          Text(
+            'Characters & Voice Actors',
+            style: theme.textTheme.headline6,
+          ),
+          const CustomDivider(),
         ],
       ),
     );
@@ -290,8 +200,10 @@ class _AnimeImageDetails extends StatelessWidget {
   const _AnimeImageDetails({
     Key? key,
     required this.animeHeight,
+    required this.anime,
   }) : super(key: key);
   final double animeHeight;
+  final Anime anime;
 
   @override
   Widget build(BuildContext context) {
@@ -300,7 +212,7 @@ class _AnimeImageDetails extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 10),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
             borderRadius:
@@ -309,45 +221,16 @@ class _AnimeImageDetails extends StatelessWidget {
               width: 100,
               height: animeHeight,
               child: Image.network(
-                'https://th.bing.com/th/id/OIP.cc_ZpP2ZwpPcixCS_ZZPagAAAA?pid=ImgDet&rs=1',
+                anime.imageUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => const SizedBox(),
               ),
             ),
           ),
-          const SizedBox(width: SpacingHelper.kMediumSpacing),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Goblin Slayer',
-                  style: theme.textTheme.headline5,
-                ),
-                const SizedBox(height: SpacingHelper.kMediumSpacing * 2.5),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    _AnimeImageDetailsIcon(
-                      icon: Icons.remove_red_eye,
-                      text: '20.5K',
-                    ),
-                    _AnimeImageDetailsIcon(
-                      icon: Icons.thumb_up,
-                      text: '3.8K',
-                    ),
-                    _AnimeImageDetailsIcon(
-                      icon: Icons.share,
-                      text: 'Share',
-                    ),
-                    _AnimeImageDetailsIcon(
-                      icon: Icons.bookmarks,
-                      text: 'Bookmark',
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          const SizedBox(width: SpacingHelper.kMediumSpacing / 2),
+          Text(
+            anime.title,
+            style: theme.textTheme.headline5,
           ),
         ],
       ),
@@ -360,19 +243,24 @@ class _AnimeImageDetailsIcon extends StatelessWidget {
     Key? key,
     required this.icon,
     required this.text,
+    required this.onTap,
   }) : super(key: key);
   final IconData icon;
   final String text;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Column(
       children: [
-        Icon(
-          icon,
-          size: 35,
-          color: Pallete.blue400,
+        IconButton(
+          onPressed: onTap,
+          icon: Icon(
+            icon,
+            size: 35,
+            color: Pallete.blue400,
+          ),
         ),
         Text(
           text,
@@ -386,7 +274,9 @@ class _AnimeImageDetailsIcon extends StatelessWidget {
 class _CoverImage extends StatelessWidget {
   const _CoverImage({
     Key? key,
+    required this.imageUrl,
   }) : super(key: key);
+  final String imageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -413,7 +303,7 @@ class _CoverImage extends StatelessWidget {
         },
         blendMode: BlendMode.dstIn,
         child: Image.network(
-          'https://th.bing.com/th/id/OIP.tIwo2Tn2yV_elKCkgracJAHaKh?pid=ImgDet&rs=1',
+          imageUrl,
           fit: BoxFit.cover,
           errorBuilder: (_, __, ___) => const SizedBox(),
         ),
