@@ -1,4 +1,5 @@
 import 'package:animew_app/core/constants.dart';
+import 'package:animew_app/core/widgets/custom_inkwell_button.dart';
 import 'package:animew_app/core/widgets/primary_button.dart';
 import 'package:animew_app/features/anime_nav/anime_nav_controller.dart';
 import 'package:animew_app/features/anime_nav/details/details_screen.dart';
@@ -11,15 +12,13 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: const [
-          _TopRatingAnime(),
-          SizedBox(height: SpacingHelper.kMediumSpacing),
-          _NewReleasedAnime(),
-          SizedBox(height: SpacingHelper.kListItemSpacing),
-        ],
-      ),
+    return Column(
+      children: const [
+        _TopRatingAnime(),
+        SizedBox(height: SpacingHelper.kMediumSpacing),
+        _NewReleasedAnime(),
+        SizedBox(height: SpacingHelper.kListItemSpacing),
+      ],
     );
   }
 }
@@ -32,8 +31,7 @@ class _TopRatingAnime extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final animeState = ref.watch(animeNavControllerProvider);
-
+    final animeState = ref.watch(animeNavControllerProvider).topAnime;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -47,73 +45,84 @@ class _TopRatingAnime extends ConsumerWidget {
         const SizedBox(height: SpacingHelper.kListItemSpacing),
         SizedBox(
           height: 250,
-          child: ListView.separated(
-            shrinkWrap: true,
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (context, index) {
-              return ClipRRect(
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(BordeRadiusHelper.kBorderRaidus),
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    _PosterImage(animeState.anime.imageUrl),
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: SpacingHelper.kListItemSpacing),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  animeState.anime.title,
-                                  maxLines: 2,
-                                  textAlign: TextAlign.start,
-                                  overflow: TextOverflow.fade,
-                                ),
-                                const SizedBox(height: 2),
-                                Row(
+          child: animeState.when(
+            data: (data) {
+              return ListView.separated(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) {
+                  final anime = data[index];
+                  return ClipRRect(
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(BordeRadiusHelper.kBorderRaidus),
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        _PosterImage(anime.imageUrl),
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    left: SpacingHelper.kListItemSpacing),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Icon(
-                                      Icons.star,
-                                      color: Colors.orange,
+                                    Text(
+                                      anime.title,
+                                      maxLines: 2,
+                                      textAlign: TextAlign.start,
+                                      overflow: TextOverflow.fade,
                                     ),
-                                    Text('${animeState.anime.score}'),
+                                    const SizedBox(height: 2),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.star,
+                                          color: Colors.orange,
+                                        ),
+                                        Text('${anime.score}'),
+                                      ],
+                                    ),
                                   ],
                                 ),
-                              ],
-                            ),
+                              ),
+                              PrimaryButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DetailsScreen(
+                                          anime: anime,
+                                        ),
+                                      ));
+                                },
+                                text: 'Watch now',
+                              ),
+                            ],
                           ),
-                          PrimaryButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => DetailsScreen(
-                                      anime: animeState.anime,
-                                    ),
-                                  ));
-                            },
-                            text: 'Watch now',
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
+                  );
+                },
+                separatorBuilder: (_, __) => const SizedBox(
+                  width: SpacingHelper.kListItemSpacing,
                 ),
+                itemCount: data.length,
               );
             },
-            separatorBuilder: (_, __) => const SizedBox(
-              width: SpacingHelper.kListItemSpacing,
+            error: (e, s) => const Center(
+              child: Text('Somenthing went wrong'),
             ),
-            itemCount: animeState.topAnime.length,
+            loading: () => const Center(
+              child: CircularProgressIndicator(),
+            ),
           ),
         ),
       ],
@@ -166,71 +175,120 @@ class _NewReleasedAnime extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 14),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: const BoxDecoration(
-        color: Pallete.blue800,
-        borderRadius: BorderRadius.all(
-          Radius.circular(BordeRadiusHelper.kBorderRaidus),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: SpacingHelper.kListItemSpacing),
-          Text(
-            'Upcoming',
-            style: theme.textTheme.headline6,
+    return Expanded(
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(horizontal: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: const BoxDecoration(
+          color: Pallete.blue800,
+          borderRadius: BorderRadius.all(
+            Radius.circular(BordeRadiusHelper.kBorderRaidus),
           ),
-          const SizedBox(height: SpacingHelper.kListItemSpacing),
-          SizedBox(
-            height: 500,
-            child: ListView.separated(
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(
-                          BordeRadiusHelper.kBorderRaidus,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: SpacingHelper.kListItemSpacing),
+            Text(
+              'Upcoming',
+              style: theme.textTheme.headline6,
+            ),
+            const SizedBox(height: SpacingHelper.kListItemSpacing),
+            Consumer(
+              builder: (context, ref, child) {
+                final animeState =
+                    ref.watch(animeNavControllerProvider).seasonUpcoming;
+
+                return animeState.when(
+                  data: (data) {
+                    return Expanded(
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          final anime = data[index];
+                          return CustomInkwellButton(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      DetailsScreen(anime: anime),
+                                ),
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(
+                                      BordeRadiusHelper.kBorderRaidus,
+                                    ),
+                                  ),
+                                  child: SizedBox(
+                                    height: 80,
+                                    width: 80,
+                                    child: Image.network(
+                                      anime.imageUrl,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                    width: SpacingHelper.kListItemSpacing),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        anime.title,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.fade,
+                                      ),
+                                      const SizedBox(
+                                          height:
+                                              SpacingHelper.kListItemSpacing),
+                                      Text(anime.aired),
+                                      const SizedBox(
+                                          height:
+                                              SpacingHelper.kListItemSpacing /
+                                                  2),
+                                      Text(anime.genresCommaSeparated),
+                                      const SizedBox(
+                                          height:
+                                              SpacingHelper.kListItemSpacing /
+                                                  2),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        separatorBuilder: (_, __) => const Divider(
+                          thickness: 1,
+                          color: Pallete.grey,
                         ),
+                        itemCount: data.length,
                       ),
-                      child: Container(
-                        color: Colors.red,
-                        height: 80,
-                        width: 80,
-                        child: Image.network(
-                          'https://cdn.myanimelist.net/images/characters/16/7634.jpg',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: SpacingHelper.kListItemSpacing),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Text('Goblin Slayer 2nd Season'),
-                        SizedBox(height: SpacingHelper.kListItemSpacing),
-                        Text('Sunday, May 10th, 2020'),
-                        SizedBox(height: SpacingHelper.kListItemSpacing / 2),
-                        Text('Romance, Slice of life, Action'),
-                      ],
-                    ),
-                  ],
+                    );
+                  },
+                  error: (e, s) => const Center(
+                    child: Text('Somenthing went wrong'),
+                  ),
+                  loading: () => const Center(
+                    child: CircularProgressIndicator(),
+                  ),
                 );
               },
-              separatorBuilder: (_, __) => const Divider(
-                thickness: 1,
-                color: Pallete.grey,
-              ),
-              itemCount: 8,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

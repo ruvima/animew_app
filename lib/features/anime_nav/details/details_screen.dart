@@ -1,4 +1,5 @@
 import 'package:animew_app/core/constants.dart';
+import 'package:animew_app/core/utils/shorten_number.dart';
 import 'package:animew_app/core/widgets/custom_divider.dart';
 import 'package:animew_app/features/anime_nav/anime_nav_controller.dart';
 import 'package:animew_app/features/anime_nav/details/anime.dart';
@@ -13,71 +14,71 @@ class DetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                _CoverImage(
-                  imageUrl: anime.imageUrl,
-                ),
-                Positioned(
-                  top: 50,
-                  child: BackButton(
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ),
-                Positioned(
-                  width: MediaQuery.of(context).size.width,
-                  bottom: -(animeHeight / 2.5),
-                  child: _AnimeImageDetails(
-                    anime: anime,
-                    animeHeight: animeHeight,
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 130, right: 15),
-              child: Consumer(
-                builder: (context, ref, child) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _AnimeImageDetailsIcon(
-                        icon: Icons.remove_red_eye,
-                        text: '${anime.scoredBy}',
-                        onTap: () {},
-                      ),
-                      _AnimeImageDetailsIcon(
-                        icon: Icons.thumb_up,
-                        text: '${anime.favorites}',
-                        onTap: () {},
-                      ),
-                      _AnimeImageDetailsIcon(
-                        icon: Icons.share,
-                        text: 'Share',
-                        onTap: () {},
-                      ),
-                      _AnimeImageDetailsIcon(
-                        icon: Icons.bookmarks,
-                        text: 'Bookmark',
-                        onTap: () {
-                          ref
-                              .read(animeNavControllerProvider.notifier)
-                              .toggleBookMark(anime);
-                        },
-                      ),
-                    ],
-                  );
-                },
+      body: Column(
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              _CoverImage(
+                imageUrl: anime.imageUrl,
               ),
+              Positioned(
+                top: 50,
+                child: BackButton(
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+              Positioned(
+                width: MediaQuery.of(context).size.width,
+                bottom: -(animeHeight / 2.5),
+                child: _AnimeImageDetails(
+                  anime: anime,
+                  animeHeight: animeHeight,
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 130, right: 15),
+            child: Consumer(
+              builder: (context, ref, child) {
+                final animeState = ref.watch(animeNavControllerProvider);
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _AnimeImageDetailsIcon(
+                      icon: Icons.remove_red_eye,
+                      text: shortenNumber(anime.scoredBy),
+                      onTap: () {},
+                    ),
+                    _AnimeImageDetailsIcon(
+                      icon: Icons.thumb_up,
+                      text: shortenNumber(anime.favorites),
+                      onTap: () {},
+                    ),
+                    _AnimeImageDetailsIcon(
+                      icon: Icons.share,
+                      text: 'Share',
+                      onTap: () {},
+                    ),
+                    _AnimeImageDetailsIcon(
+                      icon: animeState.bookmarks.contains(anime)
+                          ? Icons.bookmarks
+                          : Icons.bookmarks_outlined,
+                      text: 'Bookmark',
+                      onTap: () {
+                        ref
+                            .read(animeNavControllerProvider.notifier)
+                            .toggleBookMark(anime);
+                      },
+                    ),
+                  ],
+                );
+              },
             ),
-            // SizedBox(height: animeHeight / 2),
-            _Overview(anime: anime)
-          ],
-        ),
+          ),
+          _Overview(anime: anime)
+        ],
       ),
     );
   }
@@ -94,75 +95,105 @@ class _Overview extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 18,
-      ),
-      margin: const EdgeInsets.symmetric(horizontal: 18),
-      color: Pallete.blue900,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: SpacingHelper.kListItemSpacing),
-          Text(
-            'Synopsis',
-            style: theme.textTheme.headline6,
-          ),
-          const CustomDivider(),
-          Text(
-            anime.synopsis,
-            style: theme.textTheme.bodyText2,
-          ),
-          const SizedBox(height: SpacingHelper.kListItemSpacing),
-          Text(
-            'Information',
-            style: theme.textTheme.headline6,
-          ),
-          const CustomDivider(),
-          Column(
-            children: [
-              _InformatioWidget(
-                title: 'Name: ',
-                content: anime.title,
-              ),
-              _InformatioWidget(
-                title: 'Score: ',
-                content: '${anime.score}',
-              ),
-              _InformatioWidget(
-                title: 'Type: ',
-                content: anime.type,
-              ),
-              _InformatioWidget(
-                title: 'Episodes: ',
-                content: '${anime.episodes}',
-              ),
-              _InformatioWidget(
-                title: 'Status: ',
-                content: anime.status,
-              ),
-              _InformatioWidget(
-                title: 'Aired: ',
-                content: anime.aired,
-              ),
-              _InformatioWidget(
-                title: 'Licensors: ',
-                content: anime.licensors.toString(),
-              ),
-              _InformatioWidget(
-                title: 'Source: ',
-                content: anime.source,
-              ),
-            ],
-          ),
-          const SizedBox(height: SpacingHelper.kListItemSpacing),
-          Text(
-            'Characters & Voice Actors',
-            style: theme.textTheme.headline6,
-          ),
-          const CustomDivider(),
-        ],
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 18,
+        ),
+        margin: const EdgeInsets.symmetric(horizontal: 18),
+        color: Pallete.blue900,
+        child: ListView(
+          children: [
+            Text(
+              'Synopsis',
+              style: theme.textTheme.headline6,
+            ),
+            const CustomDivider(),
+            Text(
+              anime.synopsis,
+              style: theme.textTheme.bodyText2,
+            ),
+            const SizedBox(height: SpacingHelper.kListItemSpacing),
+            Text(
+              'Information',
+              style: theme.textTheme.headline6,
+            ),
+            const CustomDivider(),
+            Column(
+              children: [
+                _InformatioWidget(
+                  title: 'Name: ',
+                  content: anime.title,
+                ),
+                _InformatioWidget(
+                  title: 'Score: ',
+                  content: '${anime.score}',
+                ),
+                _InformatioWidget(
+                  title: 'Rank: ',
+                  content: '${anime.rank}',
+                ),
+                _InformatioWidget(
+                  title: 'Popularity: ',
+                  content: '${anime.popularity}',
+                ),
+                _InformatioWidget(
+                  title: 'Type: ',
+                  content: anime.type,
+                ),
+                _InformatioWidget(
+                  title: 'Season: ',
+                  content: anime.season,
+                ),
+                _InformatioWidget(
+                  title: 'Episodes: ',
+                  content: '${anime.episodes}',
+                ),
+                _InformatioWidget(
+                  title: 'Status: ',
+                  content: anime.status,
+                ),
+                _InformatioWidget(
+                  title: 'Year: ',
+                  content: '${anime.year}',
+                ),
+                _InformatioWidget(
+                  title: 'Aired: ',
+                  content: anime.aired,
+                ),
+                _InformatioWidget(
+                  title: 'Duration: ',
+                  content: anime.duration,
+                ),
+                _InformatioWidget(
+                  title: 'Source: ',
+                  content: anime.source,
+                ),
+                _InformatioWidget(
+                  title: 'Rating: ',
+                  content: anime.rating,
+                ),
+                _InformatioWidget(
+                  title: 'Licensors: ',
+                  content: anime.genresCommaSeparated,
+                ),
+                _InformatioWidget(
+                  title: 'Licensors: ',
+                  content: anime.studiosCommaSeparated,
+                ),
+                _InformatioWidget(
+                  title: 'Licensors: ',
+                  content: anime.licensorsCommaSeparated,
+                ),
+                _InformatioWidget(
+                  title: 'Licensors: ',
+                  content: anime.producersCommaSeparated,
+                ),
+              ],
+            ),
+            const SizedBox(height: SpacingHelper.kListItemSpacing),
+          ],
+        ),
       ),
     );
   }
@@ -228,9 +259,13 @@ class _AnimeImageDetails extends StatelessWidget {
             ),
           ),
           const SizedBox(width: SpacingHelper.kMediumSpacing / 2),
-          Text(
-            anime.title,
-            style: theme.textTheme.headline5,
+          Expanded(
+            child: Text(
+              anime.title,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.headline5,
+            ),
           ),
         ],
       ),

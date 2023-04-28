@@ -1,3 +1,4 @@
+import 'package:animew_app/features/anime_nav/bookmark/bookmark_screen.dart';
 import 'package:animew_app/features/anime_nav/explore/explore_screen.dart';
 import 'package:animew_app/features/anime_nav/home/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -20,9 +21,7 @@ class _AnimeNavState extends State<AnimeNav> {
         child: Text('Not implemented'),
       ),
       const ExploreScreen(),
-      const Center(
-        child: Text('Not implemented'),
-      ),
+      const BookmarkScreen(),
     ];
 
     void updateIndex(int value) {
@@ -33,7 +32,6 @@ class _AnimeNavState extends State<AnimeNav> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: const Icon(Icons.menu),
         title: const Text('AnimeW'),
       ),
       body: pages.elementAt(currentIndex),

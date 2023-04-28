@@ -13,7 +13,7 @@ class _ExploreScreenState extends State<ExploreScreen>
     with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    final TabController tabController = TabController(length: 5, vsync: this);
+    final TabController tabController = TabController(length: 3, vsync: this);
 
     return Scaffold(
       body: Column(
@@ -32,12 +32,6 @@ class _ExploreScreenState extends State<ExploreScreen>
               ),
               Tab(
                 text: 'Ongoing',
-              ),
-              Tab(
-                text: 'Seasonal Anime',
-              ),
-              Tab(
-                text: 'Seasonal Anime',
               ),
             ],
           ),
@@ -68,21 +62,14 @@ class _ExploreTabs extends StatelessWidget {
             children: const [
               _AnimeCarrusel(),
               _AnimeCarrusel(),
-              _AnimeCarrusel(),
             ],
           ),
         ),
         const Center(
-          child: Text("It's rainy here"),
+          child: Text('Not implemented'),
         ),
         const Center(
-          child: Text("It's sunny here"),
-        ),
-        const Center(
-          child: Text("It's sunny here"),
-        ),
-        const Center(
-          child: Text("It's sunny here"),
+          child: Text('Not implemented'),
         ),
       ],
     );
