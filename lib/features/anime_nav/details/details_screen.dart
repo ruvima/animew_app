@@ -97,11 +97,15 @@ class _Overview extends StatelessWidget {
 
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 18,
-        ),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 18),
         margin: const EdgeInsets.symmetric(horizontal: 18),
-        color: Pallete.blue900,
+        decoration: const BoxDecoration(
+          color: Pallete.blue900,
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(16),
+          ),
+        ),
         child: ListView(
           children: [
             Text(
@@ -120,6 +124,8 @@ class _Overview extends StatelessWidget {
             ),
             const CustomDivider(),
             Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _InformatioWidget(
                   title: 'Name: ',
@@ -174,11 +180,11 @@ class _Overview extends StatelessWidget {
                   content: anime.rating,
                 ),
                 _InformatioWidget(
-                  title: 'Licensors: ',
+                  title: 'Genres: ',
                   content: anime.genresCommaSeparated,
                 ),
                 _InformatioWidget(
-                  title: 'Licensors: ',
+                  title: 'Studios: ',
                   content: anime.studiosCommaSeparated,
                 ),
                 _InformatioWidget(
@@ -186,7 +192,7 @@ class _Overview extends StatelessWidget {
                   content: anime.licensorsCommaSeparated,
                 ),
                 _InformatioWidget(
-                  title: 'Licensors: ',
+                  title: 'Producers: ',
                   content: anime.producersCommaSeparated,
                 ),
               ],
@@ -213,14 +219,20 @@ class _InformatioWidget extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
           style: theme.textTheme.bodyText2,
         ),
-        Text(
-          content,
-          style: theme.textTheme.bodyText2,
+        Flexible(
+          fit: FlexFit.tight,
+          child: Text(
+            content,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+            style: theme.textTheme.bodyText2,
+          ),
         ),
       ],
     );

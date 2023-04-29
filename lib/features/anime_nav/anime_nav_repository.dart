@@ -11,7 +11,6 @@ final animeRepositoryProvider = Provider<AnimeNavRepository>((ref) {
 abstract class AnimeNavRepository {
   Future<List<AnimeEntity>> getTopAnime();
   Future<List<AnimeEntity>> getSeasonUpcoming();
-  Future<List<AnimeEntity>> getRecentAnimeRecommendations();
   Future<List<AnimeEntity>> getSeasonNow();
 }
 
@@ -41,18 +40,6 @@ class JikanAnimeRepository implements AnimeNavRepository {
         )
         .toList();
     return seasonUpcomig;
-  }
-
-  @override
-  Future<List<AnimeEntity>> getRecentAnimeRecommendations() async {
-    final response = await dio.get('recommendations/anime');
-    final result = List<Map<String, dynamic>>.from(response.data["data"]);
-    final recentAnimeRecommendations = result
-        .map(
-          (e) => AnimeEntity.fromJson(e),
-        )
-        .toList();
-    return recentAnimeRecommendations;
   }
 
   @override

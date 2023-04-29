@@ -1,4 +1,4 @@
-import 'package:animew_app/features/anime_nav/anime_nav.dart';
+import 'package:animew_app/features/anime_nav/home/home_screen.dart';
 import 'package:animew_app/theme/custom_theme.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       title: 'AnimeW',
       darkTheme: CustomTheme.darkTheme(context),
       themeMode: ThemeMode.dark,
-      home: const AnimeNav(),
+      home: const HomeScreen(),
     );
   }
 }

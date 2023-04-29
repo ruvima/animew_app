@@ -2,6 +2,7 @@ import 'package:animew_app/features/anime_nav/bookmark/bookmark_screen.dart';
 import 'package:animew_app/features/anime_nav/explore/explore_screen.dart';
 import 'package:animew_app/features/anime_nav/home/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AnimeNav extends StatefulWidget {
   const AnimeNav({Key? key}) : super(key: key);
@@ -15,27 +16,14 @@ int currentIndex = 0;
 class _AnimeNavState extends State<AnimeNav> {
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      const HomeScreen(),
-      const Center(
-        child: Text('Not implemented'),
-      ),
-      const ExploreScreen(),
-      const BookmarkScreen(),
-    ];
-
     void updateIndex(int value) {
       setState(() {
         currentIndex = value;
       });
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('AnimeW'),
-      ),
-      body: pages.elementAt(currentIndex),
-      bottomNavigationBar: BottomNavigationBar(
+    return Consumer(builder: (context, ref, child) {
+      return BottomNavigationBar(
         currentIndex: currentIndex,
         items: const [
           BottomNavigationBarItem(
@@ -55,8 +43,47 @@ class _AnimeNavState extends State<AnimeNav> {
             icon: Icon(Icons.bookmark),
           ),
         ],
-        onTap: (value) => updateIndex(value),
-      ),
-    );
+        onTap: (value) {
+          switch (value) {
+            case 0:
+              if (currentIndex != 0) {
+                updateIndex(value);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HomeScreen(),
+                  ),
+                );
+              }
+              break;
+            case 1:
+              break;
+            case 2:
+              if (currentIndex != 2) {
+                updateIndex(value);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ExploreScreen(),
+                  ),
+                );
+              }
+              break;
+            case 3:
+              if (currentIndex != 3) {
+                updateIndex(value);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const BookmarkScreen(),
+                  ),
+                );
+              }
+              break;
+            default:
+          }
+        },
+      );
+    });
   }
 }

@@ -9,7 +9,6 @@ final animeNavControllerProvider =
     const AnimeNavState(
       topAnime: AsyncValue.data([]),
       seasonUpcoming: AsyncValue.data([]),
-      recentAnimeRecommendations: AsyncValue.data([]),
       seasonNow: AsyncValue.data([]),
       bookmarks: [],
     ),
@@ -39,19 +38,13 @@ class AnimeNavController extends StateNotifier<AnimeNavState> {
     state = state.copyWith(seasonUpcoming: AsyncValue.data(result));
   }
 
-  Future<void> getRecentAnimeRecommendations() async {
-    state =
-        state.copyWith(recentAnimeRecommendations: const AsyncValue.loading());
-    final result = await _animeNavService.getRecentAnimeRecommendations();
-
-    state = state.copyWith(recentAnimeRecommendations: AsyncValue.data(result));
-  }
-
   Future<void> getSeasonNow() async {
-    state = state.copyWith(seasonNow: const AsyncValue.loading());
-    final result = await _animeNavService.getSeasonNow();
+    if (state.seasonNow.asData!.value.isEmpty) {
+      state = state.copyWith(seasonNow: const AsyncValue.loading());
+      final result = await _animeNavService.getSeasonNow();
 
-    state = state.copyWith(seasonNow: AsyncValue.data(result));
+      state = state.copyWith(seasonNow: AsyncValue.data(result));
+    }
   }
 
   void toggleBookMark(Anime anime) {

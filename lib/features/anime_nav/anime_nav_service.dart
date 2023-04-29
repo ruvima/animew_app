@@ -10,7 +10,6 @@ final animeServiceProvider = Provider<AnimeNavService>((ref) {
 abstract class AnimeNavService {
   Future<List<Anime>> getTopAnime();
   Future<List<Anime>> getSeasonUpcoming();
-  Future<List<Anime>> getRecentAnimeRecommendations();
   Future<List<Anime>> getSeasonNow();
 }
 
@@ -42,20 +41,6 @@ class JikanAnimeService implements AnimeNavService {
         )
         .toList();
     return seasonUpcoming;
-  }
-
-  @override
-  Future<List<Anime>> getRecentAnimeRecommendations() async {
-    final animeEntitis =
-        await _animeNavRepository.getRecentAnimeRecommendations();
-    final recentAnimeRecommendations = animeEntitis
-        .map(
-          (e) => Anime.fromEntity(
-            e,
-          ),
-        )
-        .toList();
-    return recentAnimeRecommendations;
   }
 
   @override

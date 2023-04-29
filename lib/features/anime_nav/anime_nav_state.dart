@@ -8,19 +8,26 @@ class AnimeNavState {
   final List<Anime> bookmarks;
   final AsyncValue<List<Anime>> topAnime;
   final AsyncValue<List<Anime>> seasonUpcoming;
-  final AsyncValue<List<Anime>> recentAnimeRecommendations;
   final AsyncValue<List<Anime>> seasonNow;
   const AnimeNavState({
-    required this.recentAnimeRecommendations,
     required this.seasonNow,
     required this.bookmarks,
     required this.topAnime,
     required this.seasonUpcoming,
   });
 
-  @override
-  String toString() {
-    return 'AnimeNavState(bookmarks: $bookmarks, topAnime: $topAnime, seasonUpcoming: $seasonUpcoming, recentAnimeRecommendations: $recentAnimeRecommendations, seasonNow: $seasonNow)';
+  AnimeNavState copyWith({
+    List<Anime>? bookmarks,
+    AsyncValue<List<Anime>>? topAnime,
+    AsyncValue<List<Anime>>? seasonUpcoming,
+    AsyncValue<List<Anime>>? seasonNow,
+  }) {
+    return AnimeNavState(
+      bookmarks: bookmarks ?? this.bookmarks,
+      topAnime: topAnime ?? this.topAnime,
+      seasonUpcoming: seasonUpcoming ?? this.seasonUpcoming,
+      seasonNow: seasonNow ?? this.seasonNow,
+    );
   }
 
   @override
@@ -30,7 +37,6 @@ class AnimeNavState {
     return listEquals(other.bookmarks, bookmarks) &&
         other.topAnime == topAnime &&
         other.seasonUpcoming == seasonUpcoming &&
-        other.recentAnimeRecommendations == recentAnimeRecommendations &&
         other.seasonNow == seasonNow;
   }
 
@@ -39,24 +45,11 @@ class AnimeNavState {
     return bookmarks.hashCode ^
         topAnime.hashCode ^
         seasonUpcoming.hashCode ^
-        recentAnimeRecommendations.hashCode ^
         seasonNow.hashCode;
   }
 
-  AnimeNavState copyWith({
-    List<Anime>? bookmarks,
-    AsyncValue<List<Anime>>? topAnime,
-    AsyncValue<List<Anime>>? seasonUpcoming,
-    AsyncValue<List<Anime>>? recentAnimeRecommendations,
-    AsyncValue<List<Anime>>? seasonNow,
-  }) {
-    return AnimeNavState(
-      bookmarks: bookmarks ?? this.bookmarks,
-      topAnime: topAnime ?? this.topAnime,
-      seasonUpcoming: seasonUpcoming ?? this.seasonUpcoming,
-      recentAnimeRecommendations:
-          recentAnimeRecommendations ?? this.recentAnimeRecommendations,
-      seasonNow: seasonNow ?? this.seasonNow,
-    );
+  @override
+  String toString() {
+    return 'AnimeNavState(bookmarks: $bookmarks, topAnime: $topAnime, seasonUpcoming: $seasonUpcoming, seasonNow: $seasonNow)';
   }
 }

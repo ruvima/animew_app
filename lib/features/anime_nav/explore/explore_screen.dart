@@ -1,29 +1,29 @@
 import 'package:animew_app/core/constants.dart';
+import 'package:animew_app/core/widgets/custom_inkwell_button.dart';
+import 'package:animew_app/features/anime_nav/anime_nav.dart';
+import 'package:animew_app/features/anime_nav/anime_nav_controller.dart';
+import 'package:animew_app/features/anime_nav/details/anime.dart';
+import 'package:animew_app/features/anime_nav/details/details_screen.dart';
 import 'package:animew_app/theme/pallete.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ExploreScreen extends StatefulWidget {
+class ExploreScreen extends StatelessWidget {
   const ExploreScreen({Key? key}) : super(key: key);
 
   @override
-  State<ExploreScreen> createState() => _ExploreScreenState();
-}
-
-class _ExploreScreenState extends State<ExploreScreen>
-    with TickerProviderStateMixin {
-  @override
   Widget build(BuildContext context) {
-    final TabController tabController = TabController(length: 3, vsync: this);
-
-    return Scaffold(
-      body: Column(
-        children: [
-          TabBar(
-            isScrollable: true,
-            padding: const EdgeInsets.symmetric(horizontal: 18),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('AnimeW'),
+          automaticallyImplyLeading: false,
+          bottom: const TabBar(
+            isScrollable: false,
+            padding: EdgeInsets.symmetric(horizontal: 18),
             indicatorColor: Pallete.grey,
-            controller: tabController,
-            tabs: const [
+            tabs: [
               Tab(
                 text: 'Shows',
               ),
@@ -35,35 +35,30 @@ class _ExploreScreenState extends State<ExploreScreen>
               ),
             ],
           ),
-          Expanded(
-            child: _ExploreTabs(tabController),
-          ),
-        ],
+        ),
+        body: const _ExploreTabs(),
+        bottomNavigationBar: const AnimeNav(),
       ),
     );
   }
 }
 
 class _ExploreTabs extends StatelessWidget {
-  const _ExploreTabs(
-    this.tabController, {
+  const _ExploreTabs({
     Key? key,
   }) : super(key: key);
 
-  final TabController tabController;
   @override
   Widget build(BuildContext context) {
     return TabBarView(
-      controller: tabController,
       children: [
-        SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              _AnimeCarrusel(),
-              _AnimeCarrusel(),
-            ],
-          ),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            _AnimeCarrusel(
+              headline: 'Current Season',
+            ),
+          ],
         ),
         const Center(
           child: Text('Not implemented'),
@@ -76,13 +71,18 @@ class _ExploreTabs extends StatelessWidget {
   }
 }
 
-class _AnimeCarrusel extends StatelessWidget {
+class _AnimeCarrusel extends ConsumerWidget {
   const _AnimeCarrusel({
     Key? key,
+    required this.headline,
   }) : super(key: key);
+  final String headline;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
+    Future.delayed(Duration.zero, () {
+      ref.read(animeNavControllerProvider.notifier).getSeasonNow();
+    });
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
@@ -101,22 +101,39 @@ class _AnimeCarrusel extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Recommendations',
+                headline,
                 style: theme.textTheme.headline5,
               ),
               const SizedBox(height: SpacingHelper.kListItemSpacing),
               Expanded(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 10,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(width: SpacingHelper.kListItemSpacing),
-                  itemBuilder: (context, index) {
-                    return const _AnimeCoverInfo();
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    final animeState =
+                        ref.watch(animeNavControllerProvider).seasonNow;
+                    return animeState.when(
+                      data: (data) {
+                        return ListView.separated(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          itemCount: data.length,
+                          separatorBuilder: (_, __) => const SizedBox(
+                              width: SpacingHelper.kListItemSpacing),
+                          itemBuilder: (context, index) {
+                            final anime = data[index];
+                            return _AnimeCoverInfo(anime: anime);
+                          },
+                        );
+                      },
+                      error: (error, stackTrace) => const Center(
+                        child: Text('Something went wrong'),
+                      ),
+                      loading: () => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
                   },
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -128,54 +145,90 @@ class _AnimeCarrusel extends StatelessWidget {
 class _AnimeCoverInfo extends StatelessWidget {
   const _AnimeCoverInfo({
     Key? key,
+    required this.anime,
   }) : super(key: key);
-
+  final Anime anime;
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(
-          height: 150,
-          width: 100,
-          child: Placeholder(),
-        ),
-        const SizedBox(height: SpacingHelper.kListItemSpacing),
-        const Text(
-          'Kimentsu no Yaiba',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
+    return CustomInkwellButton(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailsScreen(anime: anime),
           ),
-        ),
-        const Text(
-          '24 Eps (END)',
-          style: TextStyle(
-            fontSize: 12,
-          ),
-        ),
-        Row(
-          children: const [
-            Icon(
-              Icons.star,
-              size: 16,
-              color: Colors.orange,
-            ),
-            SizedBox(width: 2),
-            Text(
-              '8.81',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
+        );
+      },
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 150,
+            width: 100,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.all(
+                Radius.circular(
+                  BordeRadiusHelper.kBorderRaidus,
+                ),
+              ),
+              child: SizedBox(
+                height: 110,
+                width: 80,
+                child: Image.network(
+                  anime.imageUrl,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ],
-        ),
-      ],
+          ),
+          const SizedBox(height: SpacingHelper.kListItemSpacing),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 100,
+                  child: Text(
+                    anime.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Text(
+                  '${anime.episodes}(${anime.status})',
+                  style: const TextStyle(
+                    fontSize: 12,
+                  ),
+                ),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.star,
+                      size: 16,
+                      color: Colors.orange,
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      '${anime.score}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 }
