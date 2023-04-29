@@ -1,6 +1,7 @@
 import 'package:animew_app/core/constants.dart';
 import 'package:animew_app/core/utils/shorten_number.dart';
 import 'package:animew_app/core/widgets/custom_divider.dart';
+import 'package:animew_app/core/widgets/network_fading_image.dart';
 import 'package:animew_app/features/anime_nav/anime_nav_controller.dart';
 import 'package:animew_app/features/anime_nav/details/anime.dart';
 import 'package:animew_app/theme/pallete.dart';
@@ -20,7 +21,7 @@ class DetailsScreen extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               _CoverImage(
-                imageUrl: anime.imageUrl,
+                anime: anime,
               ),
               Positioned(
                 top: 50,
@@ -263,10 +264,9 @@ class _AnimeImageDetails extends StatelessWidget {
             child: SizedBox(
               width: 100,
               height: animeHeight,
-              child: Image.network(
-                anime.imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const SizedBox(),
+              child: NetworkFadingImage(
+                path: anime.imageUrl,
+                tag: '${anime.title}_${anime.malId}',
               ),
             ),
           ),
@@ -321,9 +321,9 @@ class _AnimeImageDetailsIcon extends StatelessWidget {
 class _CoverImage extends StatelessWidget {
   const _CoverImage({
     Key? key,
-    required this.imageUrl,
+    required this.anime,
   }) : super(key: key);
-  final String imageUrl;
+  final Anime anime;
 
   @override
   Widget build(BuildContext context) {
@@ -349,10 +349,8 @@ class _CoverImage extends StatelessWidget {
           );
         },
         blendMode: BlendMode.dstIn,
-        child: Image.network(
-          imageUrl,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => const SizedBox(),
+        child: NetworkFadingImage(
+          path: anime.imageUrl,
         ),
       ),
     );

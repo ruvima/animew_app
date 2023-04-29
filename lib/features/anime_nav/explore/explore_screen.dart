@@ -1,5 +1,8 @@
 import 'package:animew_app/core/constants.dart';
+import 'package:animew_app/core/failure.dart';
 import 'package:animew_app/core/widgets/custom_inkwell_button.dart';
+import 'package:animew_app/core/widgets/failure_screen.dart';
+import 'package:animew_app/core/widgets/network_fading_image.dart';
 import 'package:animew_app/features/anime_nav/anime_nav.dart';
 import 'package:animew_app/features/anime_nav/anime_nav_controller.dart';
 import 'package:animew_app/features/anime_nav/details/anime.dart';
@@ -124,9 +127,13 @@ class _AnimeCarrusel extends ConsumerWidget {
                           },
                         );
                       },
-                      error: (error, stackTrace) => const Center(
-                        child: Text('Something went wrong'),
-                      ),
+                      error: (e, s) {
+                        if (e is Failure) {
+                          return FailureBody(message: e.message);
+                        }
+                        return const FailureBody(
+                            message: 'Something went wrong');
+                      },
                       loading: () => const Center(
                         child: CircularProgressIndicator(),
                       ),
@@ -176,9 +183,9 @@ class _AnimeCoverInfo extends StatelessWidget {
               child: SizedBox(
                 height: 110,
                 width: 80,
-                child: Image.network(
-                  anime.imageUrl,
-                  fit: BoxFit.cover,
+                child: NetworkFadingImage(
+                  path: anime.imageUrl,
+                  tag: '${anime.title}_${anime.malId}',
                 ),
               ),
             ),

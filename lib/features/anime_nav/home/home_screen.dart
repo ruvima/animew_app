@@ -1,8 +1,12 @@
 import 'package:animew_app/core/constants.dart';
+import 'package:animew_app/core/failure.dart';
 import 'package:animew_app/core/widgets/custom_inkwell_button.dart';
+import 'package:animew_app/core/widgets/failure_screen.dart';
+import 'package:animew_app/core/widgets/network_fading_image.dart';
 import 'package:animew_app/core/widgets/primary_button.dart';
 import 'package:animew_app/features/anime_nav/anime_nav.dart';
 import 'package:animew_app/features/anime_nav/anime_nav_controller.dart';
+import 'package:animew_app/features/anime_nav/details/anime.dart';
 import 'package:animew_app/features/anime_nav/details/details_screen.dart';
 import 'package:animew_app/theme/pallete.dart';
 import 'package:flutter/material.dart';
@@ -60,6 +64,7 @@ class _TopRatingAnime extends ConsumerWidget {
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
                   final anime = data[index];
+
                   return ClipRRect(
                     borderRadius: const BorderRadius.all(
                       Radius.circular(BordeRadiusHelper.kBorderRaidus),
@@ -67,7 +72,7 @@ class _TopRatingAnime extends ConsumerWidget {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        _PosterImage(anime.imageUrl),
+                        _PosterImage(anime),
                         Positioned(
                           left: 0,
                           right: 0,
@@ -140,10 +145,10 @@ class _TopRatingAnime extends ConsumerWidget {
 
 class _PosterImage extends StatelessWidget {
   const _PosterImage(
-    this.imageUrl, {
+    this.anime, {
     Key? key,
   }) : super(key: key);
-  final String imageUrl;
+  final Anime anime;
 
   @override
   Widget build(BuildContext context) {
@@ -166,9 +171,9 @@ class _PosterImage extends StatelessWidget {
         );
       },
       blendMode: BlendMode.dstIn,
-      child: Image.network(
-        imageUrl,
-        fit: BoxFit.cover,
+      child: NetworkFadingImage(
+        path: anime.imageUrl,
+        tag: '${anime.title}_${anime.malId}',
       ),
     );
   }
@@ -216,6 +221,7 @@ class _NewReleasedAnime extends StatelessWidget {
                         shrinkWrap: true,
                         itemBuilder: (context, index) {
                           final anime = data[index];
+
                           return CustomInkwellButton(
                             onTap: () {
                               Navigator.push(
@@ -237,9 +243,9 @@ class _NewReleasedAnime extends StatelessWidget {
                                   child: SizedBox(
                                     height: 80,
                                     width: 80,
-                                    child: Image.network(
-                                      anime.imageUrl,
-                                      fit: BoxFit.cover,
+                                    child: NetworkFadingImage(
+                                      path: anime.imageUrl,
+                                      tag: '${anime.title}_${anime.malId}',
                                     ),
                                   ),
                                 ),
@@ -286,9 +292,12 @@ class _NewReleasedAnime extends StatelessWidget {
                       ),
                     );
                   },
-                  error: (e, s) => const Center(
-                    child: Text('Somenthing went wrong'),
-                  ),
+                  error: (e, s) {
+                    if (e is Failure) {
+                      return FailureBody(message: e.message);
+                    }
+                    return const FailureBody(message: 'Something went wrong');
+                  },
                   loading: () => const Center(
                     child: CircularProgressIndicator(),
                   ),

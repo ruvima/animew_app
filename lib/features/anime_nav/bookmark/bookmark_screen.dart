@@ -1,5 +1,6 @@
 import 'package:animew_app/core/constants.dart';
 import 'package:animew_app/core/widgets/custom_inkwell_button.dart';
+import 'package:animew_app/core/widgets/network_fading_image.dart';
 import 'package:animew_app/features/anime_nav/anime_nav.dart';
 import 'package:animew_app/features/anime_nav/anime_nav_controller.dart';
 import 'package:animew_app/features/anime_nav/details/details_screen.dart';
@@ -55,9 +56,9 @@ class BookmarkScreen extends ConsumerWidget {
                             child: SizedBox(
                               height: 110,
                               width: 80,
-                              child: Image.network(
-                                anime.imageUrl,
-                                fit: BoxFit.cover,
+                              child: NetworkFadingImage(
+                                path: anime.imageUrl,
+                                tag: '${anime.title}_${anime.malId}',
                               ),
                             ),
                           ),
