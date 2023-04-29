@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:animew_app/core/failure.dart';
 import 'package:animew_app/features/anime_nav/details/anime_entity.dart';
 import 'package:animew_app/main.dart';
 import 'package:dio/dio.dart';
@@ -20,37 +23,97 @@ class JikanAnimeRepository implements AnimeNavRepository {
 
   @override
   Future<List<AnimeEntity>> getTopAnime() async {
-    final response = await dio.get('top/anime');
-    final result = List<Map<String, dynamic>>.from(response.data["data"]);
-    final topAnime = result
-        .map(
-          (e) => AnimeEntity.fromJson(e),
-        )
-        .toList();
-    return topAnime;
+    try {
+      final response = await dio.get(
+        'top/anime',
+        options: Options(
+          receiveTimeout: const Duration(
+            seconds: 5,
+          ),
+        ),
+      );
+      final result = List<Map<String, dynamic>>.from(response.data["data"]);
+      final topAnime = result
+          .map(
+            (e) => AnimeEntity.fromJson(e),
+          )
+          .toList();
+      return topAnime;
+    } on DioError catch (e) {
+      if (e.error is SocketException) {
+        throw Failure(
+          message: 'No internet conncection',
+          exception: e,
+        );
+      }
+      throw Failure(
+        message: e.response?.statusMessage ?? 'Somenting went wrong',
+        code: e.response?.statusCode,
+      );
+    }
   }
 
   @override
   Future<List<AnimeEntity>> getSeasonUpcoming() async {
-    final response = await dio.get('seasons/upcoming');
-    final result = List<Map<String, dynamic>>.from(response.data["data"]);
-    final seasonUpcomig = result
-        .map(
-          (e) => AnimeEntity.fromJson(e),
-        )
-        .toList();
-    return seasonUpcomig;
+    try {
+      final response = await dio.get(
+        'seasons/upcoming',
+        options: Options(
+          receiveTimeout: const Duration(
+            seconds: 5,
+          ),
+        ),
+      );
+      final result = List<Map<String, dynamic>>.from(response.data["data"]);
+      final seasonUpcomig = result
+          .map(
+            (e) => AnimeEntity.fromJson(e),
+          )
+          .toList();
+      return seasonUpcomig;
+    } on DioError catch (e) {
+      if (e.error is SocketException) {
+        throw Failure(
+          message: 'No internet conncection',
+          exception: e,
+        );
+      }
+      throw Failure(
+        message: e.response?.statusMessage ?? 'Somenting went wrong',
+        code: e.response?.statusCode,
+      );
+    }
   }
 
   @override
   Future<List<AnimeEntity>> getSeasonNow() async {
-    final response = await dio.get('seasons/now');
-    final result = List<Map<String, dynamic>>.from(response.data["data"]);
-    final seasonNow = result
-        .map(
-          (e) => AnimeEntity.fromJson(e),
-        )
-        .toList();
-    return seasonNow;
+    try {
+      final response = await dio.get(
+        'seasons/now',
+        options: Options(
+          receiveTimeout: const Duration(
+            seconds: 5,
+          ),
+        ),
+      );
+      final result = List<Map<String, dynamic>>.from(response.data["data"]);
+      final seasonNow = result
+          .map(
+            (e) => AnimeEntity.fromJson(e),
+          )
+          .toList();
+      return seasonNow;
+    } on DioError catch (e) {
+      if (e.error is SocketException) {
+        throw Failure(
+          message: 'No internet conncection',
+          exception: e,
+        );
+      }
+      throw Failure(
+        message: e.response?.statusMessage ?? 'Somenting went wrong',
+        code: e.response?.statusCode,
+      );
+    }
   }
 }

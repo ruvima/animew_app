@@ -28,22 +28,61 @@ class AnimeNavController extends StateNotifier<AnimeNavState> {
     state = state.copyWith(topAnime: const AsyncValue.loading());
     final result = await _animeNavService.getTopAnime();
 
-    state = state.copyWith(topAnime: AsyncValue.data(result));
+    result.when(
+      (success) => state = state.copyWith(
+        topAnime: AsyncValue.data(success),
+      ),
+      (error) => state = state.copyWith(
+        topAnime: AsyncValue.error(error, StackTrace.current),
+      ),
+    );
   }
 
   Future<void> getSeasonUpcoming() async {
     state = state.copyWith(seasonUpcoming: const AsyncValue.loading());
     final result = await _animeNavService.getSeasonUpcoming();
 
-    state = state.copyWith(seasonUpcoming: AsyncValue.data(result));
+    result.when(
+      (success) => state = state.copyWith(
+        seasonUpcoming: AsyncValue.data(success),
+      ),
+      (error) => state = state.copyWith(
+        seasonUpcoming: AsyncValue.error(error, StackTrace.current),
+      ),
+    );
   }
 
   Future<void> getSeasonNow() async {
-    if (state.seasonNow.asData!.value.isEmpty) {
-      state = state.copyWith(seasonNow: const AsyncValue.loading());
-      final result = await _animeNavService.getSeasonNow();
+    if (state.seasonNow.asData != null) {
+      if (state.seasonNow.asData!.value.isEmpty) {
+        state = state.copyWith(seasonNow: const AsyncValue.loading());
+        final result = await _animeNavService.getSeasonNow();
 
-      state = state.copyWith(seasonNow: AsyncValue.data(result));
+        result.when(
+          (success) => state = state.copyWith(
+            seasonNow: AsyncValue.data(success),
+          ),
+          (error) => state = state.copyWith(
+            seasonNow: AsyncValue.error(error, StackTrace.current),
+          ),
+        );
+      }
+    } else {
+      try {
+        state = state.copyWith(seasonNow: const AsyncValue.loading());
+        final result = await _animeNavService.getSeasonNow();
+
+        result.when(
+          (success) => state = state.copyWith(
+            seasonNow: AsyncValue.data(success),
+          ),
+          (error) => state = state.copyWith(
+            seasonNow: AsyncValue.error(error, StackTrace.current),
+          ),
+        );
+      } catch (e) {
+        throw Exception('Failed to fetch data');
+      }
     }
   }
 
@@ -59,7 +98,6 @@ class AnimeNavController extends StateNotifier<AnimeNavState> {
       final newList = state.bookmarks;
       newList.removeWhere((element) => element == anime);
       state = state.copyWith(bookmarks: newList);
-      print(state.bookmarks.length);
     }
   }
 }
