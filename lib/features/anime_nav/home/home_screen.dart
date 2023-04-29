@@ -110,7 +110,8 @@ class _TopRatingAnime extends ConsumerWidget {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => DetailsScreen(
+                                        builder: (context) =>
+                                            DetailsScreenAnimator(
                                           anime: anime,
                                         ),
                                       ));
@@ -228,7 +229,7 @@ class _NewReleasedAnime extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      DetailsScreen(anime: anime),
+                                      DetailsScreenAnimator(anime: anime),
                                 ),
                               );
                             },

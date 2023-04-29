@@ -162,7 +162,7 @@ class _AnimeCoverInfo extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DetailsScreen(anime: anime),
+            builder: (context) => DetailsScreenAnimator(anime: anime),
           ),
         );
       },

@@ -39,7 +39,8 @@ class BookmarkScreen extends ConsumerWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => DetailsScreen(anime: anime),
+                          builder: (context) =>
+                              DetailsScreenAnimator(anime: anime),
                         ),
                       );
                     },
