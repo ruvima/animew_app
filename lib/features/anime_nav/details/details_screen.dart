@@ -13,6 +13,7 @@ class DetailsScreenAnimator extends StatefulWidget {
     Key? key,
     required this.anime,
   }) : super(key: key);
+
   final Anime anime;
 
   @override
@@ -22,20 +23,29 @@ class DetailsScreenAnimator extends StatefulWidget {
 class _DetailsScreenAnimatorState extends State<DetailsScreenAnimator>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  static const _animationDuration = Duration(seconds: 1);
+
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 1),
+      duration: _animationDuration,
     );
-    _controller.forward();
   }
 
   @override
   void dispose() {
     super.dispose();
     _controller.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (mounted) {
+      _controller.forward();
+    }
   }
 
   @override
@@ -98,8 +108,8 @@ class DetailsScreen extends StatelessWidget {
           ),
         ),
         super(key: key);
-  final AnimationController animationController;
 
+  final AnimationController animationController;
   final Animation<double> coverImageOpacity;
   final Animation<double> titleOpacity;
   final Animation<double> detailsIconsOpacity;
@@ -107,9 +117,10 @@ class DetailsScreen extends StatelessWidget {
   final Animation<double> informationOpacity;
 
   final Anime anime;
-  final double animeHeight = 150;
   @override
   Widget build(BuildContext context) {
+    final double animeHeight = MediaQuery.of(context).size.height * 0.2;
+
     return Scaffold(
       body: Column(
         children: [
@@ -199,12 +210,33 @@ class _Overview extends StatelessWidget {
     required this.synopsysOpacity,
     required this.informationOpacity,
   }) : super(key: key);
+
   final Anime anime;
   final Animation<double> synopsysOpacity;
   final Animation<double> informationOpacity;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final information = [
+      Information(title: 'Name: ', content: anime.title),
+      Information(title: 'Score: ', content: '${anime.score}'),
+      Information(title: 'Rank: ', content: '${anime.rank}'),
+      Information(title: 'Popularity: ', content: '${anime.popularity}'),
+      Information(title: 'Type: ', content: anime.type),
+      Information(title: 'Season: ', content: anime.season),
+      Information(title: 'Episodes: ', content: '${anime.episodes}'),
+      Information(title: 'Status: ', content: anime.status),
+      Information(title: 'Year: ', content: '${anime.year}'),
+      Information(title: 'Aired: ', content: anime.aired),
+      Information(title: 'Duration: ', content: anime.duration),
+      Information(title: 'Source: ', content: anime.source),
+      Information(title: 'Rating: ', content: anime.rating),
+      Information(title: 'Genres: ', content: anime.genresCommaSeparated),
+      Information(title: 'Studios: ', content: anime.studiosCommaSeparated),
+      Information(title: 'Licensors: ', content: anime.licensorsCommaSeparated),
+      Information(title: 'Producers: ', content: anime.producersCommaSeparated),
+    ];
 
     return Expanded(
       child: Container(
@@ -217,117 +249,74 @@ class _Overview extends StatelessWidget {
             bottom: Radius.circular(16),
           ),
         ),
-        child: ListView(
-          children: [
-            FadeTransition(
-              opacity: synopsysOpacity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Synopsis',
-                    style: theme.textTheme.headline6,
-                  ),
-                  const CustomDivider(),
-                  Text(
-                    anime.synopsis,
-                    style: theme.textTheme.bodyText2,
-                  ),
-                ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              FadeTransition(
+                opacity: synopsysOpacity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: SpacingHelper.kListItemSpacing),
+                    Text(
+                      'Synopsis',
+                      style: theme.textTheme.headline6,
+                    ),
+                    const CustomDivider(),
+                    Text(
+                      anime.synopsis,
+                      style: theme.textTheme.bodyText2,
+                    ),
+                    const SizedBox(height: SpacingHelper.kListItemSpacing),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: SpacingHelper.kListItemSpacing),
-            FadeTransition(
-              opacity: informationOpacity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Information',
-                    style: theme.textTheme.headline6,
-                  ),
-                  const CustomDivider(),
-                  _InformatioWidget(
-                    title: 'Name: ',
-                    content: anime.title,
-                  ),
-                  _InformatioWidget(
-                    title: 'Score: ',
-                    content: '${anime.score}',
-                  ),
-                  _InformatioWidget(
-                    title: 'Rank: ',
-                    content: '${anime.rank}',
-                  ),
-                  _InformatioWidget(
-                    title: 'Popularity: ',
-                    content: '${anime.popularity}',
-                  ),
-                  _InformatioWidget(
-                    title: 'Type: ',
-                    content: anime.type,
-                  ),
-                  _InformatioWidget(
-                    title: 'Season: ',
-                    content: anime.season,
-                  ),
-                  _InformatioWidget(
-                    title: 'Episodes: ',
-                    content: '${anime.episodes}',
-                  ),
-                  _InformatioWidget(
-                    title: 'Status: ',
-                    content: anime.status,
-                  ),
-                  _InformatioWidget(
-                    title: 'Year: ',
-                    content: '${anime.year}',
-                  ),
-                  _InformatioWidget(
-                    title: 'Aired: ',
-                    content: anime.aired,
-                  ),
-                  _InformatioWidget(
-                    title: 'Duration: ',
-                    content: anime.duration,
-                  ),
-                  _InformatioWidget(
-                    title: 'Source: ',
-                    content: anime.source,
-                  ),
-                  _InformatioWidget(
-                    title: 'Rating: ',
-                    content: anime.rating,
-                  ),
-                  _InformatioWidget(
-                    title: 'Genres: ',
-                    content: anime.genresCommaSeparated,
-                  ),
-                  _InformatioWidget(
-                    title: 'Studios: ',
-                    content: anime.studiosCommaSeparated,
-                  ),
-                  _InformatioWidget(
-                    title: 'Licensors: ',
-                    content: anime.licensorsCommaSeparated,
-                  ),
-                  _InformatioWidget(
-                    title: 'Producers: ',
-                    content: anime.producersCommaSeparated,
-                  ),
-                  const SizedBox(height: SpacingHelper.kListItemSpacing),
-                ],
+              FadeTransition(
+                opacity: informationOpacity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Information',
+                      style: theme.textTheme.headline6,
+                    ),
+                    const CustomDivider(),
+                    ListView.builder(
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: information.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final info = information[index];
+                        return _InformationWidget(
+                          title: info.title,
+                          content: info.content,
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _InformatioWidget extends StatelessWidget {
-  const _InformatioWidget({
+class Information {
+  final String title;
+  final String content;
+
+  const Information({
+    required this.title,
+    required this.content,
+  });
+}
+
+class _InformationWidget extends StatelessWidget {
+  const _InformationWidget({
     Key? key,
     required this.title,
     required this.content,
@@ -384,7 +373,7 @@ class _AnimeImageDetails extends StatelessWidget {
             borderRadius:
                 BorderRadius.circular(BordeRadiusHelper.kBorderRaidus),
             child: SizedBox(
-              width: 100,
+              width: MediaQuery.of(context).size.width * 0.27,
               height: animeHeight,
               child: NetworkFadingImage(
                 path: anime.imageUrl,
@@ -452,9 +441,9 @@ class _CoverImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      constraints: const BoxConstraints(minHeight: 198, maxHeight: 250),
+    return SizedBox(
+      width: double.infinity,
+      height: MediaQuery.of(context).size.height * 0.3,
       child: ShaderMask(
         shaderCallback: (rect) {
           return LinearGradient(

@@ -4,7 +4,6 @@ import 'package:animew_app/core/widgets/custom_inkwell_button.dart';
 import 'package:animew_app/core/widgets/failure_screen.dart';
 import 'package:animew_app/core/widgets/network_fading_image.dart';
 import 'package:animew_app/core/widgets/primary_button.dart';
-import 'package:animew_app/features/anime_nav/anime_nav.dart';
 import 'package:animew_app/features/anime_nav/anime_nav_controller.dart';
 import 'package:animew_app/features/anime_nav/details/anime.dart';
 import 'package:animew_app/features/anime_nav/details/details_screen.dart';
@@ -17,20 +16,13 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('AnimeW'),
-      ),
-      body: Column(
-        children: const [
-          _TopRatingAnime(),
-          SizedBox(height: SpacingHelper.kMediumSpacing),
-          _NewReleasedAnime(),
-          SizedBox(height: SpacingHelper.kListItemSpacing),
-        ],
-      ),
-      bottomNavigationBar: const AnimeNav(),
+    return Column(
+      children: const [
+        _TopRatingAnime(),
+        SizedBox(height: SpacingHelper.kMediumSpacing),
+        _NewReleasedAnime(),
+        SizedBox(height: SpacingHelper.kListItemSpacing),
+      ],
     );
   }
 }
