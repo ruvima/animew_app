@@ -1,16 +1,6 @@
 # animew_app
 
-A new Flutter project.
+AnimeW app is built using Flutter and fetches information about anime from an external API. It uses the MVU architecture, MovieFlow state, and Riverpod for dependency injection and state management. The app also follows the Repository-Service pattern to manage data retrieval and manipulation, and uses AsyncValue to handle asynchronous data fetching and to display loading and error states. To handle errors in a more granular way, the app uses the multiple_result package, which allows for the implementation of multiple return types. Custom failure objects are thrown when errors occur during API calls. Animation concepts such as image fading and staggered animation are employed to provide a more engaging user experience.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<img src="https://i.imgur.com/FMlnkho.jpg"/><img src="https://i.imgur.com/ilrbpip.jpg"/>
+<img src="https://i.imgur.com/KVz9mEw.jpg"/><img src="https://i.imgur.com/ANJu8Yp.jpg"/>
