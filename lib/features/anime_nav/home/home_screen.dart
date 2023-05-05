@@ -73,8 +73,7 @@ class _TopRatingAnime extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.only(
-                                    left: SpacingHelper.kListItemSpacing),
+                                padding: const EdgeInsets.only(left: 5),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -148,7 +147,7 @@ class _PosterImage extends StatelessWidget {
     return ShaderMask(
       shaderCallback: (rect) {
         return LinearGradient(
-          begin: Alignment.topCenter,
+          begin: Alignment.center,
           end: Alignment.bottomCenter,
           colors: [
             Theme.of(context).scaffoldBackgroundColor,

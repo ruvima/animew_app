@@ -1,6 +1,7 @@
 import 'package:animew_app/core/constants.dart';
 import 'package:animew_app/core/utils/shorten_number.dart';
 import 'package:animew_app/core/widgets/custom_divider.dart';
+import 'package:animew_app/core/widgets/custom_inkwell_button.dart';
 import 'package:animew_app/core/widgets/network_fading_image.dart';
 import 'package:animew_app/features/anime_nav/anime_nav_controller.dart';
 import 'package:animew_app/features/anime_nav/details/anime.dart';
@@ -119,46 +120,59 @@ class DetailsScreen extends StatelessWidget {
   final Anime anime;
   @override
   Widget build(BuildContext context) {
-    final double animeHeight = MediaQuery.of(context).size.height * 0.2;
-
     return Scaffold(
       body: Column(
         children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              FadeTransition(
-                opacity: coverImageOpacity,
-                child: _CoverImage(
-                  anime: anime,
-                ),
-              ),
-              Positioned(
-                top: 50,
-                child: BackButton(
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ),
-              Positioned(
-                width: MediaQuery.of(context).size.width,
-                bottom: -(animeHeight / 2.5),
-                child: _AnimeImageDetails(
-                  animeHeight: animeHeight,
-                  anime: anime,
-                  titleOpacity: titleOpacity,
-                ),
-              ),
-            ],
+          _HeaderImages(
+            coverImageOpacity: coverImageOpacity,
+            anime: anime,
+            titleOpacity: titleOpacity,
           ),
-          FadeTransition(
-            opacity: detailsIconsOpacity,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 130, right: 15),
+          const SizedBox(height: SpacingHelper.kListItemSpacing),
+          _HeaderButtons(
+            detailsIconsOpacity: detailsIconsOpacity,
+            anime: anime,
+          ),
+          const SizedBox(height: SpacingHelper.kMediumSpacing),
+          _Overview(
+            anime: anime,
+            synopsysOpacity: synopsysOpacity,
+            informationOpacity: informationOpacity,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeaderButtons extends StatelessWidget {
+  const _HeaderButtons({
+    Key? key,
+    required this.detailsIconsOpacity,
+    required this.anime,
+  }) : super(key: key);
+
+  final Animation<double> detailsIconsOpacity;
+  final Anime anime;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.27,
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 20, right: 10),
+            child: FadeTransition(
+              opacity: detailsIconsOpacity,
               child: Consumer(
                 builder: (context, ref, child) {
                   final animeState = ref.watch(animeNavControllerProvider);
                   return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _AnimeImageDetailsIcon(
                         icon: Icons.remove_red_eye,
@@ -192,13 +206,53 @@ class DetailsScreen extends StatelessWidget {
               ),
             ),
           ),
-          _Overview(
+        ),
+      ],
+    );
+  }
+}
+
+class _HeaderImages extends StatelessWidget {
+  const _HeaderImages({
+    Key? key,
+    required this.coverImageOpacity,
+    required this.anime,
+    required this.titleOpacity,
+  }) : super(key: key);
+
+  final Animation<double> coverImageOpacity;
+  final Anime anime;
+  final Animation<double> titleOpacity;
+
+  @override
+  Widget build(BuildContext context) {
+    final double animeHeight = MediaQuery.of(context).size.height * 0.2;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        FadeTransition(
+          opacity: coverImageOpacity,
+          child: _BannerImage(
             anime: anime,
-            synopsysOpacity: synopsysOpacity,
-            informationOpacity: informationOpacity,
-          )
-        ],
-      ),
+          ),
+        ),
+        Positioned(
+          top: 50,
+          child: BackButton(
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        Positioned(
+          width: MediaQuery.of(context).size.width,
+          bottom: -(animeHeight / 2.5),
+          child: _CoverImage(
+            animeHeight: animeHeight,
+            anime: anime,
+            titleOpacity: titleOpacity,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -245,8 +299,8 @@ class _Overview extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 18),
         decoration: const BoxDecoration(
           color: Pallete.blue900,
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(16),
+          borderRadius: BorderRadius.all(
+            Radius.circular(BordeRadiusHelper.kBorderRaidus),
           ),
         ),
         child: SingleChildScrollView(
@@ -349,8 +403,8 @@ class _InformationWidget extends StatelessWidget {
   }
 }
 
-class _AnimeImageDetails extends StatelessWidget {
-  const _AnimeImageDetails({
+class _CoverImage extends StatelessWidget {
+  const _CoverImage({
     Key? key,
     required this.animeHeight,
     required this.anime,
@@ -365,7 +419,7 @@ class _AnimeImageDetails extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 10),
+      padding: const EdgeInsets.only(left: 20),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -413,27 +467,28 @@ class _AnimeImageDetailsIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Column(
-      children: [
-        IconButton(
-          onPressed: onTap,
-          icon: Icon(
+    return CustomInkwellButton(
+      backgroundColor: Pallete.darkBlue,
+      onTap: onTap,
+      child: Column(
+        children: [
+          Icon(
             icon,
             size: 35,
             color: Pallete.blue400,
           ),
-        ),
-        Text(
-          text,
-          style: theme.textTheme.bodyText2,
-        ),
-      ],
+          Text(
+            text,
+            style: theme.textTheme.bodyText2,
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _CoverImage extends StatelessWidget {
-  const _CoverImage({
+class _BannerImage extends StatelessWidget {
+  const _BannerImage({
     Key? key,
     required this.anime,
   }) : super(key: key);

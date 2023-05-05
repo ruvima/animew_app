@@ -16,15 +16,21 @@ class CustomInkwellButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-        color: backgroundColor,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: const BorderRadius.all(
-            Radius.circular(
-              BordeRadiusHelper.kBorderRaidus,
-            ),
+      borderRadius: const BorderRadius.all(
+        Radius.circular(
+          BordeRadiusHelper.kBorderRaidus,
+        ),
+      ),
+      color: backgroundColor,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: const BorderRadius.all(
+          Radius.circular(
+            BordeRadiusHelper.kBorderRaidus,
           ),
-          child: child,
-        ));
+        ),
+        child: child,
+      ),
+    );
   }
 }
